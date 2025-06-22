@@ -69,7 +69,8 @@ namespace ConInfo.Controllers
 		
 
 			var employee1 = _mapper.Map<Employee>(employee);
-			EmployeeValidation validations = new EmployeeValidation();
+			employee1.Activity = 1;
+			PostEmployeeValidation validations = new PostEmployeeValidation();
 			validations.ValidateAndThrow(employee1);
 			return StatusCode(_employee.Add(employee1));
 		}
