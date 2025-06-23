@@ -16,6 +16,9 @@ namespace ConInfo.Controllers
 	[ApiController]
 	public class EmployeeComInfoController : ControllerBase
 	{
+		/// <summary>
+		/// Personellerin birden fazla iletişim bilgisi için 
+		/// </summary>
 		private readonly IConInfo<EmployeeComInfo> _employeeComInfo;
 		private readonly IMapper _mapper;
 		private readonly ConInfoDbContext _dbContext;
@@ -37,7 +40,11 @@ namespace ConInfo.Controllers
 			Expression<Func<EmployeeComInfo, bool>> expression = (c => c.Id == id && c.Activity == 1);
 			return _employeeComInfo.GetByID(expression);
 		}
-		
+		/// <summary>
+		/// employee göre iletişim bilgileri
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns></returns>
 		[HttpGet("GetByEmployeeID")]
 		public List<GetEmployeeComInfo> GetByEmployee(int id)
 		{

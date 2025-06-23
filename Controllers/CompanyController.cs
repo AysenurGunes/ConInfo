@@ -29,7 +29,11 @@ namespace ConInfo.Controllers
 		{
 			return _company.GetAll().Where(c => c.Activity == 1).ToList();
 		}
-
+		/// <summary>
+		/// base repostory ile id ye göre data çeker
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns></returns>
 		[HttpGet("GetByID")]
 		public Company Get([FromQuery] int id)
 		{
@@ -62,7 +66,12 @@ namespace ConInfo.Controllers
 			validations.ValidateAndThrow(company1);
 			return StatusCode(_company.Add(company1));
 		}
-
+		/// <summary>
+		/// validation kontrolu sonucu güncelleme yapılır
+		/// </summary>
+		/// <param name="id"></param>
+		/// <param name="company"></param>
+		/// <returns></returns>
 
 		[HttpPut("{id}")]
 		public ActionResult Put(int id, [FromBody] PutCompanyDto company)
@@ -81,6 +90,11 @@ namespace ConInfo.Controllers
 			int result = _company.Edit(company1);
 			return StatusCode(result);
 		}
+		/// <summary>
+		/// Company silme servisidir baplı employee varsa silmez
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns></returns>
 
 		[HttpDelete("{id}")]
 		public ActionResult Delete(int id)
