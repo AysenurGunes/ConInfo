@@ -3,6 +3,8 @@ using ConInfo.DataAccess;
 using ConInfo.Dtos;
 using ConInfo.Enums;
 using ConInfo.Models;
+using ConInfo.Validations;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -53,10 +55,14 @@ namespace ConInfo.Controllers
 		[HttpPost]
 		public ActionResult Post([FromBody] PostEmployeeComInfoDto employeeComInfo)
 		{
-			//PostBookValidation validations = new PostBookValidation();
-			//validations.ValidateAndThrow(book);
+			
 
 			var employeeComInfo1 = _mapper.Map<EmployeeComInfo>(employeeComInfo);
+			employeeComInfo1.Activity = 1;
+
+			PostEmployeeComInfoValidation validations = new PostEmployeeComInfoValidation();
+			validations.ValidateAndThrow(employeeComInfo1);
+
 			return StatusCode(_employeeComInfo.Add(employeeComInfo1));
 		}
 
@@ -70,9 +76,10 @@ namespace ConInfo.Controllers
 			}
 
 			var employeeComInfo1 = _mapper.Map<EmployeeComInfo>(employeeComInfo);
+			employeeComInfo1.Activity = 1;
 
-			//BookValidation validations = new BookValidation();
-			//validations.ValidateAndThrow(book1);
+			EmployeeComIfoValidation validations = new EmployeeComIfoValidation();
+			validations.ValidateAndThrow(employeeComInfo1);
 
 			int result = _employeeComInfo.Edit(employeeComInfo1);
 			return StatusCode(result);

@@ -35,6 +35,7 @@ namespace ConInfo.Controllers
 							Id = emp.Id,
 							CompanyName = comp.Name,
 							Name = emp.Name,
+							CompanyId=comp.Id,
 							UnicInfoValue = (from c in _dbContext.EmployeeComInfos where c.EmployeeId == emp.Id select new GetEmployeeComInfo{ ComTypeName=((EnumClass)c.ComType).ToString(),UnicInfo=c.UnicInfo }).ToList()
 						};
 
@@ -48,11 +49,11 @@ namespace ConInfo.Controllers
 			Expression<Func<Employee, bool>> expression = (c => c.Id == id && c.Activity == 1);
 			return _employee.GetByID(expression);
 		}
-
+		
 		[HttpGet("GetSearchByName")]
 		public List<Employee> GetSearch([FromQuery] string Name)
 		{
-			Expression<Func<Employee, bool>> expression = (c => c.Name.Contains(Name));
+			Expression<Func<Employee, bool>> expression = (c => c.Name.Contains(Name) && c.Activity==1);
 			return _employee.GetSpecial(expression).ToList();
 		}
 
@@ -85,10 +86,11 @@ namespace ConInfo.Controllers
 			}
 
 			var employee1 = _mapper.Map<Employee>(employee);
+			employee1.Activity = 1;
 
 			EmployeeValidation validations = new EmployeeValidation();
 			validations.ValidateAndThrow(employee1);
-
+			
 			int result = _employee.Edit(employee1);
 			return StatusCode(result);
 		}

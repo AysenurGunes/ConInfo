@@ -2,7 +2,10 @@
 using ConInfo.DataAccess;
 using ConInfo.Dtos;
 using ConInfo.Models;
+using ConInfo.Validations;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 
@@ -13,16 +16,18 @@ namespace ConInfo.Controllers
 	public class CompanyController : ControllerBase
 	{
 		private readonly IConInfo<Company> _company;
+		private readonly IConInfo<Employee> _employee;
 		private readonly IMapper _mapper;
-		public CompanyController(IConInfo<Company> company, IMapper mapper)
+		public CompanyController(IConInfo<Company> company, IMapper mapper, IConInfo<Employee> employee)
 		{
 			_company = company;
+			_employee = employee;
 			_mapper = mapper;
 		}
 		[HttpGet("GetAllCompany")]
 		public List<Company> Get()
 		{
-			return _company.GetAll().Where(c=>c.Activity==1).ToList();
+			return _company.GetAll().Where(c => c.Activity == 1).ToList();
 		}
 
 		[HttpGet("GetByID")]
@@ -49,10 +54,12 @@ namespace ConInfo.Controllers
 		[HttpPost]
 		public ActionResult Post([FromBody] PostCompanyDto company)
 		{
-			//PostBookValidation validations = new PostBookValidation();
-			//validations.ValidateAndThrow(book);
+
 
 			var company1 = _mapper.Map<Company>(company);
+			company1.Activity = 1;
+			PostCompanyValidation validations = new PostCompanyValidation();
+			validations.ValidateAndThrow(company1);
 			return StatusCode(_company.Add(company1));
 		}
 
@@ -66,10 +73,11 @@ namespace ConInfo.Controllers
 			}
 
 			var company1 = _mapper.Map<Company>(company);
-
-			//BookValidation validations = new BookValidation();
-			//validations.ValidateAndThrow(book1);
 			company1.Activity = 1;
+
+			CompanyValidation validations = new CompanyValidation();
+			validations.ValidateAndThrow(company1);
+
 			int result = _company.Edit(company1);
 			return StatusCode(result);
 		}
@@ -81,11 +89,21 @@ namespace ConInfo.Controllers
 			{
 				return BadRequest();
 			}
-			Company company = Get(id);
-			company.Activity = 0;
+			Expression<Func<Employee, bool>> expression = (c => c.CompanyId == id && c.Activity == 1);
+			var resultEmp= _employee.GetByID(expression);
+			if (resultEmp==null)
+			{
+				Company company = Get(id);
+				company.Activity = 0;
 
-			int result = _company.Delete(company);
-			return StatusCode(result);
+				int result = _company.Delete(company);
+				return StatusCode(result);
+			}
+			else
+			{
+				return BadRequest("Bağlı Personel");
+			}
+			
 		}
 	}
 }
